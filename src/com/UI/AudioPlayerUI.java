@@ -1,5 +1,6 @@
 package com.UI;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -33,12 +34,14 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 	JMenu file,help; 
 	JMenuItem open, createPlayList;
 	JPanel playList;
+	JScrollPane scroll;
 	JLabel playListLabel, display, heading;
 	ActionEvent action;
 	Functionality operations;
 	String status;
 	Long currentFrame;
 	int audioPosition,len;
+	JList <String> listOfItem;
 	
 	
 	/**
@@ -70,6 +73,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
         createPlayList = new JMenuItem("Create PlayList");
         
         playList= new JPanel();
+        
         playListLabel = new JLabel("Your Play List:");
         display= new JLabel(); // Name of the song
         heading = new JLabel(); //Now playing
@@ -100,10 +104,16 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 		
 		//create play list area
 		
-		playListLabel.setBounds(500, 50, 200, 50);
-		playList.setBounds(450, 30, 250, 400);
+		playListLabel.setBounds(550, 50, 200, 50);
+	//	playList.setBounds(500, 30, 250, 400);
+		//scroll.setBounds(500, 30, 250, 400);
 		playList.add(playListLabel);
+		playList.setBackground(Color.blue);
 		
+		scroll=new JScrollPane(playList);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);  
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.setBounds(500, 30, 250, 400);
 		//creating play area
 		
         stopButton.setBounds(50, 280, 70, 70);
@@ -162,7 +172,8 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 	    window.add(playPause);
 	    window.add(forward);
 	    window.add(slider);
-	    window.add(playList);
+	    window.add(scroll);
+	   // window.add(new JScrollPane(playList));
 	   // window.add(playListLabel);
 	   
 	    window.setLocationRelativeTo(null);
@@ -244,7 +255,19 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 			}
 		}
 		else if(e.getSource()== createPlayList) {
-			operations.createPlayList();
+			ArrayList<String> tempList= operations.createPlayList(window);
+			DefaultListModel<String> l1 = new DefaultListModel<>();  
+			for(String item:tempList)
+				 l1.addElement(item);
+			listOfItem= new JList<>(l1);
+			listOfItem.setBounds(510, 200, 100, 200);
+			playList.add(listOfItem);
+			//window.add(listOfItem);
+			playList.repaint();
+			//window.repaint();
+			
+			//add this to window
+			
 		}
 		
 		else if(e.getSource()==heading) {

@@ -4,6 +4,7 @@ import java.io.File;
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner; 
   
@@ -15,6 +16,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
@@ -33,6 +35,7 @@ public class Functionality {
     public List<String> toBePlayed;
     File file;
     public TrackInformation info;
+    HashMap<String,ArrayList<String>> playList;  
    // Audioformat format;
     //= "C:\\Users\\Ritzy\\Music\\Veer-Zaara.wav";
     
@@ -40,6 +43,7 @@ public class Functionality {
     	currentFrame = null;
     	filePath=null;
     	toBePlayed = new ArrayList<String>();
+    	playList=new HashMap<String,ArrayList<String>>();
     	
     //	status=new String("none");
     	}
@@ -136,8 +140,33 @@ public class Functionality {
         clip.close();
     }
     
-    public void createPlayList() {
-    	
+    public ArrayList<String> createPlayList(JFrame window) {
+    	JFrame temp;  
+	    temp=new JFrame();
+	    ArrayList <String> tempList = new ArrayList<String>();
+	    
+	    String name=JOptionPane.showInputDialog(temp,"Enter Name");
+	    
+	    //open multiple file chooser
+	    JFileChooser fc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+	    fc.setMultiSelectionEnabled(true);
+	    int i = fc.showOpenDialog(window);
+	    
+	    if(i==JFileChooser.APPROVE_OPTION){
+   		 File[] filesForPlayList= fc.getSelectedFiles();
+   		 
+   		 for(File q : filesForPlayList) {
+   			tempList.add(q.getPath());
+   		 }
+   		 
+   		playList.put(name, tempList);
+   	     
+	    }
+	    
+	    return tempList;
     }
+    
+    
+    
     
 }
