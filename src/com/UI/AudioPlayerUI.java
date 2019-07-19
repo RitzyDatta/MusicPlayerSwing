@@ -7,6 +7,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.*;
 import java.io.IOException;
@@ -45,6 +46,10 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 	JList <String> listOfItem;
 	static Logger log = Logger.getLogger(AudioPlayerUI.class.getName());
 	
+	int width,height;
+	
+	
+	
 	
 	/**
 	 * Initialization take place in constructor
@@ -74,7 +79,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
         open= new JMenuItem("Open");
         createPlayList = new JMenuItem("Create PlayList");
         
-        playList= new JPanel(new FlowLayout());
+        playList= new JPanel();
         
         playListLabel = new JLabel("Your Play List:");
         display= new JLabel(); // Name of the song
@@ -83,6 +88,11 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
         //for functionality class
         operations= new Functionality();
         status="none";
+        
+        width =900;
+        height=500;
+        
+       
         
 	}
 	
@@ -137,7 +147,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 					slider.setValue(0);
 					timer.stop();
 				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-					log.debug(e);
+					log.error( "failed!", e);
 				}
 				
 			}
@@ -162,8 +172,9 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 	   open.addActionListener(this);
 	   createPlayList.addActionListener(this);
 	   
-	   
+	 //  window.setLayout(new BorderLayout());
 	  //  window.add(playPause);
+	 
 	    window.add(menubar);
 	    window.setJMenuBar(menubar);
 	    window.add(heading);
@@ -175,13 +186,16 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 	    window.add(slider);
 	    window.add(playListLabel);
 	    window.add(scroll);
+	 //   window.setResizable(false);
 	   // window.add(new JScrollPane(playList));
 	   // window.add(playListLabel);
 	   
 	    window.setLocationRelativeTo(null);
 	    
-	    window.setLayout(null);
-	    window.setSize(900, 500);
+	   window.setLayout(null);
+	   window.setSize(1000, 500);
+	   // window.setPreferredSize(new Dimension(900,500));
+	    
 	    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    //window.setBackground(Color.GREEN);
 	    window.setVisible(true);
@@ -263,11 +277,11 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 			for(String item:tempList)
 				 l1.addElement(item);
 			listOfItem= new JList<>(l1);
-			listOfItem.setBounds(510, 200, 100, 200);
+			listOfItem.setBounds(10, 20, 100, 200);
 			playList.add(listOfItem);
 			//window.add(listOfItem);
 			//playList.repaint();
-			//window.repaint();
+			window.repaint();
 			
 			//add this to window
 			

@@ -107,7 +107,8 @@ public class Functionality {
     public void openFile(JFrame window) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
     	
     	JFileChooser fc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-    //	fc.setFileFilter(new FileNameExtensionFilter( "wav", "mp3"));
+    	 fc.setAcceptAllFileFilterUsed(false);
+    	fc.addChoosableFileFilter(new FileNameExtensionFilter( "songs", "wav", "mp3"));
     	int i=fc.showOpenDialog(window);
     	 if(i==JFileChooser.APPROVE_OPTION){
     		 File f=fc.getSelectedFile();
@@ -152,6 +153,7 @@ public class Functionality {
 	    //open multiple file chooser
 	    JFileChooser fc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 	    fc.setMultiSelectionEnabled(true);
+	    fc.addChoosableFileFilter(new FileNameExtensionFilter( "songs", "wav", "mp3"));	
 	    int i = fc.showOpenDialog(window);
 	    
 	    if(i==JFileChooser.APPROVE_OPTION){
