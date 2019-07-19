@@ -61,8 +61,10 @@ public class Functionality {
 	                clip = AudioSystem.getClip();
 	                  
 	                // open audioInputStream to the clip 
-	                clip.open(audioInputStream);              
-	               clip.loop(Clip.LOOP_CONTINUOUSLY);
+	                clip.open(audioInputStream);
+	                clip.loop(1);
+	             
+	                //clip.loop(Clip.LOOP_CONTINUOUSLY);
     			}
     			
 	    			

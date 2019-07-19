@@ -93,6 +93,9 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 		display.setBounds(100, 80, 450, 100);
 		heading.setText("Now Playing");
 		
+		//slider.setBorder(new CompoundBorder(new EmptyBorder(6, 10, 10, 10), border));
+		//slider.addChangeListener(window);
+		
 		//display.setText("testing something with something");
 		
 		//create play list area
@@ -115,11 +118,25 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 			
-			int progress = slider.getValue();
-			double frame = ((double) operations.info.frameCount * ((double) progress / 100.0));
-			int currentPosition = (int) (((double) frame / (double) operations.info.frameCount) * 100);
-            slider.setValue(currentPosition);
-            System.out.println("in timer loop" + currentPosition);
+			if(audioPosition >= 100 ) {
+				
+				try {
+					operations.stop();
+					slider.setValue(0);
+					timer.stop();
+				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			else {
+				audioPosition = (int) ((operations.clip.getMicrosecondPosition()/ 1000000)*(100/(int)operations.info.durationInSeconds));
+			    slider.setValue(audioPosition);
+	            System.out.println("in timer loop" + audioPosition);
+	            
+			}
+			
 			}		
 			
         });
@@ -153,7 +170,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 	    window.setLayout(null);
 	    window.setSize(800, 500);
 	    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	    window.setBackground(Color.GREEN);
+	    //window.setBackground(Color.GREEN);
 	    window.setVisible(true);
 		
 	}
@@ -164,15 +181,13 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 		
 		if(e.getSource()==playPause) {
 			if(playPause.isSelected()) {
+				
  				try {
  					operations.playMusic(status);
  					status="play";
  					playPause.setText("Pause");
  					
- 					
- 					//slider = new JSlider(JSlider.HORIZONTAL,0,len,0);
- 				//	window.repaint();
- 					
+ 					System.out.println("duration in seconds: " +operations.info.durationInSeconds);
  					timer.start();
  				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
  					e1.printStackTrace();
@@ -180,9 +195,10 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
  	 	       }
  			
  			else {
- 					operations.pauseMusic(status);
+ 					operations.pauseMusic(status); 
  					status = "paused";
  					playPause.setText("Play");
+ 					timer.stop();
  			}
 		} //playPause
 		
@@ -218,6 +234,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 		else if(e.getSource()== stopButton) {
 			try {
 				operations.stop();
+				timer.stop();
 				playPause.setSelected(false);
 				playPause.setText("Play");
 				status="none";

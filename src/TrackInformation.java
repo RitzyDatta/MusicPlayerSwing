@@ -1,4 +1,4 @@
-package com.operations;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,10 +27,10 @@ public class TrackInformation {
 	ParseContext context;
 	AudioInputStream audioInputStream;
 	long audioFileLength;
-	int frameSize;
+	public int frameSize;
 	AudioFormat format;
 	public float durationInSeconds;
-	float frameRate;
+	public float frameRate;
 	public long frameCount;
 	public long qqwe;
 	
@@ -51,7 +51,7 @@ public class TrackInformation {
 			frameCount = audioInputStream.getFrameLength();
 			durationInSeconds = (audioFileLength / (frameSize * frameRate));
 			
-			qqwe=(long) (frameSize * frameRate);
+			qqwe= (long) (frameSize*frameRate);
 		} catch (UnsupportedAudioFileException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
