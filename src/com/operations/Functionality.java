@@ -57,21 +57,20 @@ public class Functionality {
     	
     	if(status=="none") { // no music is previously selected
     		// create AudioInputStream object
-    		if(toBePlayed != null) {
+    		if(filePath != null) {
     			status="play";
     			
-    			for( String i : toBePlayed) {
-    				  audioInputStream = AudioSystem.getAudioInputStream(new File(i).getAbsoluteFile()); 
-	                
-	                // create clip reference 
-	                clip = AudioSystem.getClip();
-	                  
-	                // open audioInputStream to the clip 
-	                clip.open(audioInputStream);
-	                clip.loop(1);
-	             
-	                //clip.loop(Clip.LOOP_CONTINUOUSLY);
-    			}
+				audioInputStream = AudioSystem.getAudioInputStream(new File(filePath).getAbsoluteFile()); 
+				
+				// create clip reference 
+				clip = AudioSystem.getClip();
+				  
+				// open audioInputStream to the clip 
+				clip.open(audioInputStream);
+				clip.loop(0);
+				
+ 
+				//clip.loop(Clip.LOOP_CONTINUOUSLY);
     			
 	    			
     		}
@@ -122,8 +121,6 @@ public class Functionality {
 				log.error( "failed!", e);
 			}
     	     
-    	     if(filePath != null)
-    	    	 toBePlayed.add(filePath);
     	     
     	  //   System.out.println(filePath);
     	     
