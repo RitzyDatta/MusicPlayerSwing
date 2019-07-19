@@ -1,6 +1,7 @@
 package com.UI;
 
 import java.awt.BorderLayout;
+import org.apache.log4j.Logger;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -42,6 +43,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 	Long currentFrame;
 	int audioPosition,len;
 	JList <String> listOfItem;
+	static Logger log = Logger.getLogger(AudioPlayerUI.class.getName());
 	
 	
 	/**
@@ -72,7 +74,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
         open= new JMenuItem("Open");
         createPlayList = new JMenuItem("Create PlayList");
         
-        playList= new JPanel();
+        playList= new JPanel(new FlowLayout());
         
         playListLabel = new JLabel("Your Play List:");
         display= new JLabel(); // Name of the song
@@ -104,7 +106,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 		
 		//create play list area
 		
-		playListLabel.setBounds(550, 50, 200, 50);
+		playListLabel.setBounds(500, 10, 200, 50);
 	//	playList.setBounds(500, 30, 250, 400);
 		//scroll.setBounds(500, 30, 250, 400);
 		playList.add(playListLabel);
@@ -113,7 +115,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 		scroll=new JScrollPane(playList);
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);  
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scroll.setBounds(500, 30, 250, 400);
+        scroll.setBounds(550, 50, 300, 350);
 		//creating play area
 		
         stopButton.setBounds(50, 280, 70, 70);
@@ -135,8 +137,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 					slider.setValue(0);
 					timer.stop();
 				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.debug(e);
 				}
 				
 			}
@@ -172,6 +173,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 	    window.add(playPause);
 	    window.add(forward);
 	    window.add(slider);
+	    window.add(playListLabel);
 	    window.add(scroll);
 	   // window.add(new JScrollPane(playList));
 	   // window.add(playListLabel);
@@ -179,7 +181,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 	    window.setLocationRelativeTo(null);
 	    
 	    window.setLayout(null);
-	    window.setSize(800, 500);
+	    window.setSize(900, 500);
 	    window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    //window.setBackground(Color.GREEN);
 	    window.setVisible(true);
@@ -201,7 +203,8 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
  					System.out.println("duration in seconds: " +operations.info.durationInSeconds);
  					timer.start();
  				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
- 					e1.printStackTrace();
+ 					//e1.printStackTrace();
+ 					log.error( "failed!", e1 );
  				}
  	 	       }
  			
@@ -219,8 +222,8 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 				try {
 					operations.openFile(window);
 				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					//e1.printStackTrace();
+					log.error( "failed!", e1 );
 				}
 				display.setText(operations.filePath);
 				
@@ -234,8 +237,8 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 					 operations.stop();
 					 display.setText(operations.filePath);
 				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					//e1.printStackTrace();
+					log.error( "failed!", e1 );
 				}
 				playPause.setSelected(false);
 				playPause.setText("Play");
@@ -250,8 +253,8 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 				playPause.setText("Play");
 				status="none";
 			} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				//e1.printStackTrace();
+				log.error( "failed!", e1 );
 			}
 		}
 		else if(e.getSource()== createPlayList) {
@@ -263,7 +266,7 @@ public class AudioPlayerUI implements ActionListener,Runnable,MouseListener {
 			listOfItem.setBounds(510, 200, 100, 200);
 			playList.add(listOfItem);
 			//window.add(listOfItem);
-			playList.repaint();
+			//playList.repaint();
 			//window.repaint();
 			
 			//add this to window

@@ -1,6 +1,7 @@
 package com.operations;
 
 import java.io.File; 
+import org.apache.log4j.Logger;
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +36,8 @@ public class Functionality {
     public List<String> toBePlayed;
     File file;
     public TrackInformation info;
-    HashMap<String,ArrayList<String>> playList;  
+    HashMap<String,ArrayList<String>> playList;
+    static Logger log = Logger.getLogger(Functionality.class.getName());
    // Audioformat format;
     //= "C:\\Users\\Ritzy\\Music\\Veer-Zaara.wav";
     
@@ -115,8 +117,8 @@ public class Functionality {
     	     try {
 				info= new TrackInformation(filePath);
 			} catch (SAXException | TikaException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
+				log.error( "failed!", e);
 			}
     	     
     	     if(filePath != null)
