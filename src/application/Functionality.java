@@ -374,7 +374,6 @@ public class Functionality {
 	 
 	 public void dragSlider() {
 		 
-		 System.out.println("draging");
 		 Duration duration = mediaPlayer.getTotalDuration();
 	//	 mediaPlayer.stop();
 	//	 timeslider.setValue(timeslider.getValue());
