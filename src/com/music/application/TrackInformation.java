@@ -1,4 +1,4 @@
-package application;
+package com.music.application;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,22 +1,32 @@
 //USING JAVA FX
 
 
-package application;
+package com.music.application;
 import java.awt.Container;
 import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Random;
 
 import org.apache.tika.exception.TikaException;
 import org.xml.sax.SAXException;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -26,6 +36,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
@@ -56,9 +67,12 @@ public class Functionality {
 	Media media;
 	Double currentTime,totalTime,audioPosition;
 	TextInputDialog dialog;
-	 List <File> listOfFiles; //this is to keep all the selected files for a playlist
-	 int index;
+	Optional<String> result; // store create play list name
+	//List <File> listOfFiles; //this is to keep all the selected files for a playlist
+	ArrayList <String> listOfFiles; //this is to keep all the selected files for a playlist
+	int index;
 	Boolean isPlayList;
+	Boolean isPaused;
 	
 	//Status status;
 	
@@ -72,6 +86,8 @@ public class Functionality {
 		dialog= new TextInputDialog();
 		isPlayList = false;
 		index=0;
+		listOfFiles= new ArrayList<String>();
+		isPaused = false;
 	}
 	
 	
@@ -79,7 +95,8 @@ public class Functionality {
 	public void PlayMusic() {
         
 		if(isPlayList && playPause.isSelected()) {
-			playPlayList();
+			//playPlayList();
+			play();
 		}
 		else if(isPlayList && !playPause.isSelected()) {
 			pause();
@@ -95,11 +112,12 @@ public class Functionality {
 		
 		if(mediaPlayer != null) {
 			Status status=mediaPlayer.getStatus();
-			//System.out.println("status" +status);
+			System.out.println("status" +status);
 			
-			if(status==Status.READY || status==Status.UNKNOWN) {
+			if(status==Status.READY || status == Status.STOPPED) {
 				
 				playPause.setText("Pause");
+				playPause.setSelected(true);
 					
 			        //by setting this property to true, the audio will be played   
 			    //    mediaPlayer.setAutoPlay(true);
@@ -119,8 +137,16 @@ public class Functionality {
 				
 			}
 			else if(status==Status.PAUSED) {
-				playPause.setText("Play");
+				System.out.println("status paused called");
+				playPause.setText("Pause");
 				mediaPlayer.play();
+			}
+			else if( status == Status.UNKNOWN) {   // this is to show if the file status is unknown
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Error");
+				alert.setContentText("Ooops, there was an error!");
+
+				alert.showAndWait();
 			}
 		}
 		
@@ -128,8 +154,10 @@ public class Functionality {
 	
 	public void pause() {
 		if(mediaPlayer != null) {
+			System.out.println("Pause function called");
 			playPause.setText("Play");
 			mediaPlayer.pause();
+			isPaused = true;
 		}
 		
 	}
@@ -148,19 +176,25 @@ public class Functionality {
 					System.out.println("TEMP INDEX" + tempIndex);
 					try {
 						
-						String temp = listOfFiles.get(tempIndex).getAbsolutePath();
+						String temp = listOfFiles.get(tempIndex)
+								;
 						labelCurrentSong.setText(temp); // it shows the current song name in the player
-						media = new Media(listOfFiles.get(tempIndex).toURI().toString());  
+						media = new Media(new File(listOfFiles.get(tempIndex)).toURI().toString());
+						list.scrollTo(tempIndex);
+						list.getSelectionModel().select(tempIndex+1); //select the song which is currently playing
 				        //System.out.println("filepath:  "+listOfFiles.get(index));
 				        //Instantiating MediaPlayer class   
 				        mediaPlayer = new MediaPlayer(media);
-						info= new TrackInformation(listOfFiles.get(tempIndex).getPath()); //NEED CORRECTION
+						info= new TrackInformation(listOfFiles.get(tempIndex)); //NEED CORRECTION
 					} catch (IOException | SAXException | TikaException e) {
 						
 						e.printStackTrace();
 					}
 					index++;
-					play();
+					 //this is to delay the function
+			        Timeline timeline = new Timeline(
+			        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
+			       timeline.play();
 					
 				}
 				else {
@@ -184,19 +218,25 @@ public class Functionality {
 				System.out.println("TEMP INDEX" + tempIndex);
 				try {
 					
-					String temp = listOfFiles.get(tempIndex).getAbsolutePath();
+					String temp = listOfFiles.get(tempIndex);
 					labelCurrentSong.setText(temp); // it shows the current song name in the player
-					media = new Media(listOfFiles.get(tempIndex).toURI().toString());  
+					media = new Media(new File(listOfFiles.get(tempIndex)).toURI().toURL().toExternalForm());
+					list.scrollTo(tempIndex);
+					list.getSelectionModel().select(tempIndex+1); //select the song which is currently playing
 			        //System.out.println("filepath:  "+listOfFiles.get(index));
 			        //Instantiating MediaPlayer class   
 			        mediaPlayer = new MediaPlayer(media);
-					info= new TrackInformation(listOfFiles.get(tempIndex).getPath()); //NEED CORRECTION
+					info= new TrackInformation(listOfFiles.get(tempIndex)); //NEED CORRECTION
 				} catch (IOException | SAXException | TikaException e) {
 					
 					e.printStackTrace();
 				}
 				index--;
-				play();
+				
+				 //this is to delay the function
+		        Timeline timeline = new Timeline(
+		        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
+		       timeline.play();
 				
 			} // end of if(tempIndex>0)
 			else {				
@@ -212,19 +252,28 @@ public class Functionality {
 			if(index<listOfFiles.size()) {
 				System.out.println("index" + index);
 				try {					
-					String temp = listOfFiles.get(index).getAbsolutePath();
+					String temp = listOfFiles.get(index);
 					labelCurrentSong.setText(temp); // it shows the current song name in the player
-					media = new Media(listOfFiles.get(index).toURI().toString());  
-			         System.out.println("filepath:  "+listOfFiles.get(index));
+				//	media = new Media(new File(listOfFiles.get(index)).toURI().toString());
+					String path = new File(temp).toURI().toString();
+					media = new Media(path);
+					// media = new Media(new File(temp).toURI().toString());
+			         System.out.println("filepath:"+listOfFiles.get(index));
+			         System.out.println(media.getError());
 			        //Instantiating MediaPlayer class   
 			        mediaPlayer = new MediaPlayer(media);
-					info= new TrackInformation(listOfFiles.get(0).getPath()); //NEED CORRECTION
+			        System.out.println("Status" +mediaPlayer.getStatus());
+			     //   play();
+			        list.scrollTo(index);
+			        list.getSelectionModel().select(index+1); //select the song which is currently playing
+			        
+					info = new TrackInformation(listOfFiles.get(index)); //NEED CORRECTION
 				} catch (IOException | SAXException | TikaException e) {
 					
 					e.printStackTrace();
 				}
-				index++;
-				play();				
+					
+					index++;		
 			}
 			else {
 				index=0;
@@ -243,19 +292,33 @@ public class Functionality {
 		 //fileChooser.setSelectedExtensionFilter("wav", "mp3");
 		 
 		 fileForSong = fileChooser.showOpenDialog(primaryStage);
-		 System.out.println(fileForSong);
-		 String temp = fileForSong.getAbsolutePath();
-		 System.out.println("temp" + temp);
-		 labelCurrentSong.setText(temp);
 		 
 		 if(fileForSong != null) {
+			 System.out.println(fileForSong);
+			 String temp = fileForSong.getAbsolutePath();
+			 System.out.println("temp" + temp);
+			 labelCurrentSong.setText(temp);
 			//store information of the selected file
 			try {
 				media = new Media(fileForSong.toURI().toString());  
 		          
 		        //Instantiating MediaPlayer class   
-		        mediaPlayer = new MediaPlayer(media);  
-		          
+		        mediaPlayer = new MediaPlayer(media);
+		        
+		        //this is to delay the function
+		        Timeline timeline = new Timeline(
+		        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
+		       timeline.play();
+		       
+		     /*  Thread t1 = new Thread(new Runnable() {
+		    	    @Override
+		    	    public void run() {
+		    	        play();
+		    	    }
+		    	});
+		    	t1.start(); */
+		       
+		       
 				info= new TrackInformation(fileForSong.getPath());
 			} catch (IOException | SAXException | TikaException e) {
 				
@@ -271,6 +334,7 @@ public class Functionality {
 	        mediaPlayer.stop();
 	        playPause.setSelected(false);
 			playPause.setText("Play");
+			
 	        
 	    }
 	
@@ -298,9 +362,8 @@ public class Functionality {
 				
 				//this is for playlist
 				if(isPlayList) {
-					
-					System.out.println("this function was called");
 					playPlayList();
+					index++;
 				}
 				else {
 					mediaPlayer.seek(mediaPlayer.getStartTime());
@@ -313,41 +376,25 @@ public class Functionality {
 			
 		});
 		 
-	/*	if(currentTime.intValue() == totalTime.intValue()) {
-			 // Restart the music
-			timeslider.setValue(0);
-			
-			
-			//this is for playlist
-			if(isPlayList) {
-				
-				System.out.println("this function was called");
-				playPlayList();
-			}
-			else {
-				mediaPlayer.seek(mediaPlayer.getStartTime());
-				playPause.setSelected(false);
-				playPause.setText("Play");
-				mediaPlayer.stop();
-
-			}
-			
-		} */
-		
-		 
 	 }
 	 
-	 public void createPlayList() {
-		 ArrayList <String> tempList = new ArrayList<String>();
-		 
+	 
+	public void createPlayList() {
+		 List <File> allFiles = new ArrayList<File>();
 		 
 		 dialog.setTitle("Create Play List");
 		 dialog.setHeaderText("Enter a Name:");
-		 Optional<String> result = dialog.showAndWait();
+		 result = dialog.showAndWait();
 		 if(result.isPresent()) { //this means, user has entered the name of the playlist
 			 fileChooser = new FileChooser();
-			 fileChooser.setTitle("selct files");
-			 listOfFiles=  fileChooser.showOpenMultipleDialog(primaryStage);
+			 fileChooser.setTitle("select files");
+			// allFiles=  fileChooser.showOpenMultipleDialog(primaryStage);
+			 allFiles = fileChooser.showOpenMultipleDialog(primaryStage);
+			 
+			 for(File f : allFiles)
+				 listOfFiles.add(f.getAbsolutePath());
+			 
+			 
 			 
 			 if(listOfFiles != null) {
 				 ObservableList<String> names = FXCollections.observableArrayList();
@@ -356,16 +403,14 @@ public class Functionality {
 				 
 				 names.addAll(temp);
 				 
-				 for(File f : listOfFiles) {
-					 names.add(f.getPath());
+				 for(String s : listOfFiles) {
+					 names.add(s);
 				 }
 				 
 				 
-				 
-				 list.setItems(temp);
 				 list.setItems(names);
 				 isPlayList = true;
-				 
+				 playPlayList();
 				 
 				 				 
 			 }
@@ -379,6 +424,69 @@ public class Functionality {
 	//	 timeslider.setValue(timeslider.getValue());
 		 mediaPlayer.seek(duration.multiply(timeslider.getValue() / 100.0));
 	//	 mediaPlayer.play();
+	 }
+	 
+	 public void shuffelPlayList() {
+		 if(isPlayList) {
+			// Collections.shuffle(listOfFiles);
+			
+			Random rand = new Random();
+			int index;
+			String temp, temp2;
+			int len= listOfFiles.size();
+			
+			int j=0;
+			for(int i=len-1; i>=0;i--) {
+				index=rand.nextInt(len-j);
+				System.out.println("i is -> " +i);
+				temp = listOfFiles.get(i);
+				temp2=listOfFiles.get(index);
+				//swaping 
+				listOfFiles.set(i, temp2);
+				listOfFiles.set(index, temp);
+				j++;
+			} 
+			
+			 if(listOfFiles != null) {
+				 ObservableList<String> names = FXCollections.observableArrayList();
+				//add playList name->
+				 ObservableList<String> temp1  = FXCollections.observableArrayList(result.get());
+				 
+				 names.addAll(temp1);
+				 
+				 for(String f : listOfFiles) {
+					 names.add(f);
+				 } 
+				 list.setItems(names);
+			}
+			
+		 }
+		 
+			
+	 }
+	 
+	 public void playSelectedSong() {
+		 
+		 list.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			    @Override
+			    public void handle(MouseEvent click) {
+
+			        if (click.getClickCount() == 2) {
+			        	stop();
+			           //Use ListView's getSelected Item
+			           index = list.getSelectionModel().getSelectedIndex()-1;
+			           playPause.setSelected(true);
+			           //use this to do whatever you want to. Open Link etc.
+			           playPlayList();
+			        }
+			    }
+
+				
+			});
+		 
+		// index = list.getSelectionModel().getSelectedIndex() -1;
+		 
 	 }
 
 }

@@ -1,4 +1,4 @@
-package application;
+package com.music.application;
 	
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -15,7 +15,7 @@ public class Main extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		
 		try {
-			Parent root = FXMLLoader.load(getClass().getResource("/application/UI.fxml"));
+			Parent root = FXMLLoader.load(getClass().getResource("UI.fxml"));
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
