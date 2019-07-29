@@ -102,8 +102,32 @@ public class Functionality {
 		 index=0;
 		listOfFiles= new ArrayList<String>();
 		onclicked =0.0;
+		if(mediaPlayer !=null)
+			mediaPlayer.dispose();
 
 	 }
+	
+	public void repeat() {
+		 if(repeat.isSelected()) {
+			 stop();
+			 Timeline timeline = new Timeline(
+		        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
+		      timeline.play();
+		 }
+			
+			
+	 }
+	
+	public String getName(String name) {
+		name=name.replace("\\", "\\\\");
+		System.out.println(name);
+		 String[] arrOfStr = name.split("\\\\");
+		 int len=arrOfStr.length;
+		 
+		//return null;
+		return arrOfStr[len-1]; 
+		 
+	    } 
 	
 	@FXML
 	public void PlayMusic() {
@@ -193,9 +217,9 @@ public class Functionality {
 					System.out.println("TEMP INDEX" + tempIndex);
 					try {
 						
-						String temp = listOfFiles.get(tempIndex)
-								;
-						labelCurrentSong.setText(temp); // it shows the current song name in the player
+						String temp = listOfFiles.get(tempIndex);
+						
+						labelCurrentSong.setText(getName(temp));// it shows the current song name in the player
 						media = new Media(new File(listOfFiles.get(tempIndex)).toURI().toString());
 						list.scrollTo(tempIndex);
 						list.getSelectionModel().select(tempIndex+1); //select the song which is currently playing
@@ -236,7 +260,7 @@ public class Functionality {
 				try {
 					
 					String temp = listOfFiles.get(tempIndex);
-					labelCurrentSong.setText(temp); // it shows the current song name in the player
+					labelCurrentSong.setText(getName(temp));// it shows the current song name in the player
 					media = new Media(new File(listOfFiles.get(tempIndex)).toURI().toURL().toExternalForm());
 					list.scrollTo(tempIndex);
 					list.getSelectionModel().select(tempIndex+1); //select the song which is currently playing
@@ -270,7 +294,7 @@ public class Functionality {
 				System.out.println("index" + index);
 				try {					
 					String temp = listOfFiles.get(index);
-					labelCurrentSong.setText(temp); // it shows the current song name in the player
+					labelCurrentSong.setText(getName(temp)); // it shows the current song name in the player
 				//	media = new Media(new File(listOfFiles.get(index)).toURI().toString());
 					String path = new File(temp).toURI().toString();
 					media = new Media(path);
@@ -303,7 +327,7 @@ public class Functionality {
 	
 	 public void openFile() {
 		 
-		 reset();
+		 
 		 fileChooser = new FileChooser();
 		 fileChooser.setTitle("Open File");
 		 //fileChooser.setSelectedExtensionFilter("wav", "mp3");
@@ -311,10 +335,12 @@ public class Functionality {
 		 fileForSong = fileChooser.showOpenDialog(primaryStage);
 		 
 		 if(fileForSong != null) {
+			 
 			 System.out.println(fileForSong);
 			 String temp = fileForSong.getAbsolutePath();
 			 System.out.println("temp" + temp);
-			 labelCurrentSong.setText(temp);
+			 
+			 labelCurrentSong.setText(getName(temp));
 			 
 			//store information of the selected file
 			try {
@@ -410,12 +436,13 @@ public class Functionality {
 	 
 	 
 	public void createPlayList() {
-		reset();
+		
 		 List <File> allFiles = new ArrayList<File>();
 		 
 		 dialog.setTitle("Create Play List");
 		 dialog.setHeaderText("Enter a Name:");
 		 result = dialog.showAndWait();
+		 
 		 if(result.isPresent()) { //this means, user has entered the name of the playlist
 			 fileChooser = new FileChooser();
 			 fileChooser.setTitle("select files");
@@ -435,7 +462,7 @@ public class Functionality {
 				 names.addAll(temp);
 				 
 				 for(String s : listOfFiles) {
-					 names.add(s);
+					 names.add(getName(s));
 				 }
 				 
 				 
@@ -490,7 +517,8 @@ public class Functionality {
 				 names.addAll(temp1);
 				 
 				 for(String f : listOfFiles) {
-					 names.add(f);
+					 names.add(getName(f));
+					 System.out.println("fileName" +getName(f));
 				 } 
 				 list.setItems(names);
 			}
@@ -541,16 +569,7 @@ public class Functionality {
 		 }
 	 }
 	 
-	 public void repeat() {
-		 if(repeat.isSelected()) {
-			 stop();
-			 Timeline timeline = new Timeline(
-		        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
-		      timeline.play();
-		 }
-			
-			
-	 }
+	 
 	 
 	 
 
