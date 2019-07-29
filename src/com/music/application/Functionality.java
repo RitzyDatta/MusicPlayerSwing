@@ -53,9 +53,9 @@ public class Functionality {
 	@FXML Button stop;
 	@FXML Button next;
 	@FXML Button previous;
-	@FXML ToggleButton playPause;
+	@FXML ToggleButton playPause,repeat;
 	@FXML Label labelCurrentSong;
-	@FXML Slider timeslider;
+	@FXML Slider timeslider,volumeBar;
 	@FXML ListView<String> list;
 	@FXML ListView<String> playListName;
 	
@@ -65,7 +65,7 @@ public class Functionality {
 	TrackInformation info;
 	Stage primaryStage;
 	Media media;
-	Double currentTime,totalTime,audioPosition;
+	Double currentTime,totalTime,audioPosition,onclicked;
 	TextInputDialog dialog;
 	Optional<String> result; // store create play list name
 	//List <File> listOfFiles; //this is to keep all the selected files for a playlist
@@ -82,14 +82,28 @@ public class Functionality {
 		currentTime = null;
 		audioPosition= 0.0;
 		timeslider= new Slider();
+		volumeBar = new Slider();
 		list = new ListView<String>();
 		dialog= new TextInputDialog();
 		isPlayList = false;
 		index=0;
 		listOfFiles= new ArrayList<String>();
 		isPaused = false;
+		onclicked =0.0;
 	}
 	
+	
+	public void reset() {
+		 media=null;
+		 mediaPlayer=null;
+		 timeslider.setValue(0);
+		 list = new ListView<String>();
+		 isPlayList = false;
+		 index=0;
+		listOfFiles= new ArrayList<String>();
+		onclicked =0.0;
+
+	 }
 	
 	@FXML
 	public void PlayMusic() {
@@ -120,15 +134,18 @@ public class Functionality {
 				playPause.setSelected(true);
 					
 			        //by setting this property to true, the audio will be played   
-			    //    mediaPlayer.setAutoPlay(true);
+			    //    
 			        mediaPlayer.play();
 			        
+			        volumeBar.setValue( mediaPlayer.getVolume()*100);
+			        System.out.println("Volume is: " +mediaPlayer.getVolume());
 			        mediaPlayer.currentTimeProperty().addListener(new InvalidationListener() {
 			            public void invalidated(Observable ov) 
 			            { 
 			            	Status status = mediaPlayer.getStatus();
 			            //	System.out.println(status);
-			            	
+
+			            	timeslider.getOnDragDetected();
 			            	sliderControl(); 
 			            } 
 			        }); 
@@ -286,7 +303,7 @@ public class Functionality {
 	
 	 public void openFile() {
 		 
-		 isPlayList=false; // play list song will not be played
+		 reset();
 		 fileChooser = new FileChooser();
 		 fileChooser.setTitle("Open File");
 		 //fileChooser.setSelectedExtensionFilter("wav", "mp3");
@@ -298,17 +315,20 @@ public class Functionality {
 			 String temp = fileForSong.getAbsolutePath();
 			 System.out.println("temp" + temp);
 			 labelCurrentSong.setText(temp);
+			 
 			//store information of the selected file
 			try {
+				stop();
 				media = new Media(fileForSong.toURI().toString());  
 		          
 		        //Instantiating MediaPlayer class   
 		        mediaPlayer = new MediaPlayer(media);
 		        
 		        //this is to delay the function
+		        
 		        Timeline timeline = new Timeline(
 		        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
-		       timeline.play();
+		        timeline.play();
 		       
 		     /*  Thread t1 = new Thread(new Runnable() {
 		    	    @Override
@@ -330,10 +350,14 @@ public class Functionality {
 	    }
 	 
 	 public void stop() {
-	        currentTime = null; 
+		 if(mediaPlayer!=null) {
+			 System.out.println("Stop");
+			currentTime = null; 
 	        mediaPlayer.stop();
 	        playPause.setSelected(false);
 			playPause.setText("Play");
+		 }
+	        
 			
 	        
 	    }
@@ -343,12 +367,18 @@ public class Functionality {
 		 totalTime = mediaPlayer.getTotalDuration().toSeconds();
 		 
 	//	 System.out.println("currentTime" + currentTime);
-	//	 System.out.println("totalTime" + totalTime);
-		 
+	//	 System.out.println("totalTime" + totalTime
 		 audioPosition= (currentTime/(totalTime))*100; //as slide bar min length is 0 and max length is 100
 		 
 	//	 System.out.println("audioPosition" + audioPosition);
-		 timeslider.setValue(audioPosition);
+		 if(onclicked ==0.0)
+			 timeslider.setValue(audioPosition);
+		 else {
+			 timeslider.setValue(onclicked);
+			 onclicked=0.0;
+		 }
+			 
+			 
 			
 		 
 		mediaPlayer.setOnEndOfMedia(new Runnable() {
@@ -359,7 +389,7 @@ public class Functionality {
 				 // Restart the music
 				timeslider.setValue(0);
 				
-				
+				repeat();
 				//this is for playlist
 				if(isPlayList) {
 					playPlayList();
@@ -380,6 +410,7 @@ public class Functionality {
 	 
 	 
 	public void createPlayList() {
+		reset();
 		 List <File> allFiles = new ArrayList<File>();
 		 
 		 dialog.setTitle("Create Play List");
@@ -410,6 +441,7 @@ public class Functionality {
 				 
 				 list.setItems(names);
 				 isPlayList = true;
+				 stop();
 				 playPlayList();
 				 
 				 				 
@@ -419,11 +451,14 @@ public class Functionality {
 	 
 	 public void dragSlider() {
 		 
+		 System.out.println("dragslider");
+		 
 		 Duration duration = mediaPlayer.getTotalDuration();
 	//	 mediaPlayer.stop();
-	//	 timeslider.setValue(timeslider.getValue());
 		 mediaPlayer.seek(duration.multiply(timeslider.getValue() / 100.0));
-	//	 mediaPlayer.play();
+		 onclicked = timeslider.getValue();
+		 System.out.println("onclicked: " +onclicked);
+	//	 
 	 }
 	 
 	 public void shuffelPlayList() {
@@ -488,5 +523,35 @@ public class Functionality {
 		// index = list.getSelectionModel().getSelectedIndex() -1;
 		 
 	 }
+	 
+	 public void muteMedia() {
+		 if(mediaPlayer != null) {
+			 if(mediaPlayer.isMute() == false)
+				 mediaPlayer.setMute(true);
+			 else
+				 mediaPlayer.setMute(false);
+		 }
+	 }
+	 
+	 public void setVolume() {
+		 if(mediaPlayer != null) {
+			 double vol = volumeBar.getValue()/100;
+			 mediaPlayer.setVolume(vol);
+			 
+		 }
+	 }
+	 
+	 public void repeat() {
+		 if(repeat.isSelected()) {
+			 stop();
+			 Timeline timeline = new Timeline(
+		        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
+		      timeline.play();
+		 }
+			
+			
+	 }
+	 
+	 
 
 }
