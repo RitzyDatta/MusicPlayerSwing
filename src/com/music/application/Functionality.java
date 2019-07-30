@@ -3,9 +3,14 @@
 
 package com.music.application;
 import java.awt.Container;
+
 import java.util.List;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,7 +62,7 @@ public class Functionality {
 	@FXML Label labelCurrentSong;
 	@FXML Slider timeslider,volumeBar;
 	@FXML ListView<String> list;
-	@FXML ListView<String> playListName;
+	//@FXML ListView<String> playListName;
 	
 	MediaPlayer mediaPlayer;
 	FileChooser fileChooser;
@@ -73,6 +78,8 @@ public class Functionality {
 	int index;
 	Boolean isPlayList;
 	Boolean isPaused;
+	String playListName;
+	
 	
 	//Status status;
 	
@@ -90,6 +97,12 @@ public class Functionality {
 		listOfFiles= new ArrayList<String>();
 		isPaused = false;
 		onclicked =0.0;
+		
+		Timeline timeline = new Timeline(
+        	    new KeyFrame(Duration.seconds(0.8), e -> loadPlayList("C:\\Users\\Ritzy\\Desktop\\temp\\serialization.txt")));
+       timeline.play();
+		
+		
 	}
 	
 	
@@ -127,7 +140,72 @@ public class Functionality {
 		//return null;
 		return arrOfStr[len-1]; 
 		 
-	    } 
+	    }
+	
+	public void saveList(String path) {
+		 if(list != null) {
+			 
+			 try {
+				  FileOutputStream fout=new FileOutputStream(path);  
+				  ObjectOutputStream out=new ObjectOutputStream(fout); 
+				  out.writeObject(listOfFiles);
+				  out.writeObject(playListName);
+				  out.flush();  
+				  System.out.println("success");  
+				  
+				  out.close();
+				  fout.close();
+				}
+				catch (IOException e) {  
+		            e.printStackTrace();  
+		        }
+		 }
+	 }
+	
+	public void loadPlayList(String path) {
+		
+		try {
+			 File file = new File(path);
+			if(file.exists() && !file.isDirectory()) {
+				ObjectInputStream deserial=new ObjectInputStream(new FileInputStream(file));
+				try {
+					//list1 = (ListView<String>) deserial.readObject();
+					listOfFiles= (ArrayList<String>) deserial.readObject();
+					playListName=(String) deserial.readObject();
+					System.out.println(playListName);
+					
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}  
+				
+				if(listOfFiles != null && playListName != null) {
+					 ObservableList<String> names = FXCollections.observableArrayList();
+					//add playList name->
+					 ObservableList<String> temp1  = FXCollections.observableArrayList(playListName);
+					 
+					 names.addAll(temp1);
+					 
+					 for(String s : listOfFiles) {
+						 names.add(getName(s));
+					 }
+					 
+					 
+					 list.setItems(names);
+				}
+				deserial.close();
+				
+			}
+			
+		}
+		catch (IOException e) {  
+            e.printStackTrace();  
+        }
+		
+	}
+	 
+	
+
 	
 	@FXML
 	public void PlayMusic() {
@@ -327,7 +405,6 @@ public class Functionality {
 	
 	 public void openFile() {
 		 
-		 
 		 fileChooser = new FileChooser();
 		 fileChooser.setTitle("Open File");
 		 //fileChooser.setSelectedExtensionFilter("wav", "mp3");
@@ -470,9 +547,11 @@ public class Functionality {
 				 isPlayList = true;
 				 stop();
 				 playPlayList();
-				 
+				 playListName=result.get();
 				 				 
 			 }
+			 
+			 saveList("C:\\Users\\Ritzy\\Desktop\\temp\\serialization.txt");
 		 }
 	 }
 	 

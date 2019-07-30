@@ -15,6 +15,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.mp3.LyricsHandler;
 import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.SAXException;
 
@@ -25,7 +26,7 @@ public class TrackInformation {
 	Metadata metadata;
 	FileInputStream inputstream;
 	ParseContext context;
-	AudioInputStream audioInputStream;
+	FileInputStream fileInputStream;
 	long audioFileLength;
 	int frameSize;
 	AudioFormat format;
@@ -35,36 +36,22 @@ public class TrackInformation {
 	public long qqwe;
 	
 	public TrackInformation(String filePath) throws IOException, SAXException, TikaException {
-		file= new File(filePath);
-		
-		parser = new AutoDetectParser();
-		handler = new BodyContentHandler();
-		metadata = new Metadata();
-		inputstream = new FileInputStream(file);
-		context = new ParseContext();
-		try {
-			audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
-			format = audioInputStream.getFormat();
-			audioFileLength = file.length();
-			frameSize = format.getFrameSize();
-			frameRate = format.getFrameRate();
-			frameCount = audioInputStream.getFrameLength();
-			durationInSeconds = (audioFileLength / (frameSize * frameRate));
-			
-			qqwe=(long) (frameSize * frameRate);
-		} catch (UnsupportedAudioFileException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		
-		parser.parse(inputstream, handler, metadata, context);
-		
-		//getting the list of all meta data elements 
-		String[] metadataNames = metadata.names();
-		for(String name : metadataNames) {
-			//System.out.println(name + ": " + metadata.get(name));
-			
-		}
-	}
+		  BodyContentHandler handler = new BodyContentHandler();  
+	      Metadata metadata = new Metadata();  
+	      FileInputStream inputstream = new FileInputStream(new File(filePath));  
+	      ParseContext pcontext = new ParseContext();  
+	      parser = new AutoDetectParser();
+	      parser.parse(inputstream, handler, metadata, pcontext);  
+	      LyricsHandler lyrics = new LyricsHandler(inputstream,handler);  
+	      while(lyrics.hasLyrics()) {  
+	          System.out.println(lyrics.toString());  
+	      }  
+	    //  System.out.println("Contents of the document:" + handler.toString());  
+	    //  System.out.println("Metadata of the document:");  
+	      String[] metadataNames = metadata.names();  
+	      for(String name : metadataNames) {                  
+	      //    System.out.println(name + ": " + metadata.get(name));  
+	      }  
 	
+}
 }
