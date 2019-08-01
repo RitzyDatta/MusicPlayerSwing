@@ -1,8 +1,13 @@
-//USING JAVA FX
+/**
+ * Here we are using javafx library for this music player. This class contains all the functionality of the music player app.
+ * In this class, in some function "Timeline" has been used, to introduce some delay before calling a function. It is used because, some problem were faced while executing the function
+ * without any delay.
+ */
 
 
 package com.music.application;
 import java.awt.Container;
+
 
 import java.util.List;
 import java.io.File;
@@ -33,6 +38,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.*;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -50,6 +57,10 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class Functionality {
+	//VARIABLE DECLARATION
+	/**
+	 * @FXML is used to refer the component in the UI i.e. it is used to connect variable from backend to UI elements.
+	 */
 	
 	@FXML Container border;
 	@FXML MenuBar file;
@@ -83,6 +94,9 @@ public class Functionality {
 	
 	//Status status;
 	
+	/**
+	 * Here the constructor is used to initialize the variables.
+	 */
 	
 	public Functionality() {
 		primaryStage = new Stage();
@@ -91,138 +105,79 @@ public class Functionality {
 		timeslider= new Slider();
 		volumeBar = new Slider();
 		list = new ListView<String>();
-		dialog= new TextInputDialog();
 		isPlayList = false;
 		index=0;
 		listOfFiles= new ArrayList<String>();
 		isPaused = false;
 		onclicked =0.0;
 		
-		Timeline timeline = new Timeline(
+		/*Timeline timeline = new Timeline(
         	    new KeyFrame(Duration.seconds(0.8), e -> loadPlayList("C:\\Users\\Ritzy\\Desktop\\temp\\serialization.txt")));
-       timeline.play();
+       timeline.play(); */
 		
 		
 	}
 	
-	
-	public void reset() {
-		 media=null;
-		 mediaPlayer=null;
-		 timeslider.setValue(0);
-		 list = new ListView<String>();
-		 isPlayList = false;
-		 index=0;
-		listOfFiles= new ArrayList<String>();
-		onclicked =0.0;
-		if(mediaPlayer !=null)
-			mediaPlayer.dispose();
-
-	 }
+	/**
+	 * This function is used to repeat a particular song.
+	 */
 	
 	public void repeat() {
 		 if(repeat.isSelected()) {
-			 stop();
-			 Timeline timeline = new Timeline(
-		        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
-		      timeline.play();
+			 if(isPlayList) {
+				 index--;
+			 }
+			 else {
+				 stop();
+				 Timeline timeline = new Timeline(
+			        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
+			      timeline.play();
+			 }
+			 
 		 }
 			
 			
 	 }
+	/**
+	 * This function is used to get the name of the song from the filepath. this will show the name by which song is saved in the local machine.
+	 * Here the function is taking the path of the song as parameter. Path will be split by "\"(back slash) and the last string will be the song name. 
+	 * @param name
+	 * @return
+	 */
 	
-	public String getName(String name) {
-		name=name.replace("\\", "\\\\");
-		System.out.println(name);
-		 String[] arrOfStr = name.split("\\\\");
+	public String getName(String path) {
+		path=path.replace("\\", "\\\\");
+		System.out.println(path);
+		 String[] arrOfStr = path.split("\\\\");
 		 int len=arrOfStr.length;
-		 
-		//return null;
 		return arrOfStr[len-1]; 
 		 
 	    }
 	
-	public void saveList(String path) {
-		 if(list != null) {
-			 
-			 try {
-				  FileOutputStream fout=new FileOutputStream(path);  
-				  ObjectOutputStream out=new ObjectOutputStream(fout); 
-				  out.writeObject(listOfFiles);
-				  out.writeObject(playListName);
-				  out.flush();  
-				  System.out.println("success");  
-				  
-				  out.close();
-				  fout.close();
-				}
-				catch (IOException e) {  
-		            e.printStackTrace();  
-		        }
-		 }
-	 }
-	
-	public void loadPlayList(String path) {
 		
-		try {
-			 File file = new File(path);
-			if(file.exists() && !file.isDirectory()) {
-				ObjectInputStream deserial=new ObjectInputStream(new FileInputStream(file));
-				try {
-					//list1 = (ListView<String>) deserial.readObject();
-					listOfFiles= (ArrayList<String>) deserial.readObject();
-					playListName=(String) deserial.readObject();
-					System.out.println(playListName);
-					
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}  
-				
-				if(listOfFiles != null && playListName != null) {
-					 ObservableList<String> names = FXCollections.observableArrayList();
-					//add playList name->
-					 ObservableList<String> temp1  = FXCollections.observableArrayList(playListName);
-					 
-					 names.addAll(temp1);
-					 
-					 for(String s : listOfFiles) {
-						 names.add(getName(s));
-					 }
-					 
-					 
-					 list.setItems(names);
-				}
-				deserial.close();
-				
-			}
-			
-		}
-		catch (IOException e) {  
-            e.printStackTrace();  
-        }
-		
-	}
-	 
-	
-
-	
 	@FXML
+	
+	/**
+	 * When the play button is pressed in the UI it calls this function. If the button is selected then it calls the play function, otherwise it calls the pause function
+	 */
 	public void PlayMusic() {
         
-		if(isPlayList && playPause.isSelected()) {
-			//playPlayList();
-			play();
+		if(playPause.isSelected()) {
+
+			Timeline timeline = new Timeline(
+	        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
+	        timeline.play();
+			
 		}
-		else if(isPlayList && !playPause.isSelected()) {
-			pause();
-		}
-		else if(playPause.isSelected())
-        	play();
         else
         	pause();
         
 	}
+	
+	/**
+	 * This function plays song when mediaplayer is already loaded with the song previously.
+	 * This function first decides the state of the media player then it takes action based on that. 
+	 */
 	
 	public void play() {
 		
@@ -271,6 +226,10 @@ public class Functionality {
 		
 	}
 	
+	/**
+	 * This function is used to pause the currently playing song.
+	 */
+	
 	public void pause() {
 		if(mediaPlayer != null) {
 			System.out.println("Pause function called");
@@ -281,6 +240,10 @@ public class Functionality {
 		
 	}
 	
+	
+	/**
+	 * This function is used to play the next song in the playlist. This function won't work if there is no playlist currently loaded or there is only one song in the playlist.
+	 */
 	public void nextSong() {
 		
 		if(isPlayList) { // only if more than one song is selected then we can select next or previous
@@ -313,7 +276,7 @@ public class Functionality {
 					 //this is to delay the function
 			        Timeline timeline = new Timeline(
 			        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
-			       timeline.play();
+			        timeline.play();
 					
 				}
 				else {
@@ -326,7 +289,9 @@ public class Functionality {
 		}
 	}
 	
-	
+	/**
+	 * This function is used to play the previous song in the playlist. This function won't work if there is no playlist currently loaded or there is only one song in the playlist.
+	 */
 	public void previousSong() {
 		if(isPlayList && listOfFiles.size()>1) {
 			int tempIndex=index -2;
@@ -366,6 +331,10 @@ public class Functionality {
 		} //end of if(isPlayList && listOfFiles.size()>1)
 	}
 	
+	/**
+	 * 
+	 */
+	
 	public void playPlayList() {
 		if(listOfFiles != null) {
 			if(index<listOfFiles.size()) {
@@ -373,16 +342,20 @@ public class Functionality {
 				try {					
 					String temp = listOfFiles.get(index);
 					labelCurrentSong.setText(getName(temp)); // it shows the current song name in the player
-				//	media = new Media(new File(listOfFiles.get(index)).toURI().toString());
 					String path = new File(temp).toURI().toString();
 					media = new Media(path);
-					// media = new Media(new File(temp).toURI().toString());
 			         System.out.println("filepath:"+listOfFiles.get(index));
 			         System.out.println(media.getError());
 			        //Instantiating MediaPlayer class   
 			        mediaPlayer = new MediaPlayer(media);
 			        System.out.println("Status" +mediaPlayer.getStatus());
-			     //   play();
+			        
+
+					Timeline timeline = new Timeline(
+			        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
+			        timeline.play();
+					
+			        
 			        list.scrollTo(index);
 			        list.getSelectionModel().select(index+1); //select the song which is currently playing
 			        
@@ -392,7 +365,7 @@ public class Functionality {
 					e.printStackTrace();
 				}
 					
-					index++;		
+					index++;
 			}
 			else {
 				index=0;
@@ -409,6 +382,9 @@ public class Functionality {
 		 fileChooser.setTitle("Open File");
 		 //fileChooser.setSelectedExtensionFilter("wav", "mp3");
 		 
+		 fileChooser.getExtensionFilters().addAll(
+				    new FileChooser.ExtensionFilter("all", "*.mp3","*.wav","*.aif","*.aiff")
+				);
 		 fileForSong = fileChooser.showOpenDialog(primaryStage);
 		 
 		 if(fileForSong != null) {
@@ -495,8 +471,8 @@ public class Functionality {
 				repeat();
 				//this is for playlist
 				if(isPlayList) {
+					System.out.println("inside isplaylist");
 					playPlayList();
-					index++;
 				}
 				else {
 					mediaPlayer.seek(mediaPlayer.getStartTime());
@@ -514,7 +490,9 @@ public class Functionality {
 	 
 	public void createPlayList() {
 		
+		
 		 List <File> allFiles = new ArrayList<File>();
+		 dialog = new TextInputDialog();
 		 
 		 dialog.setTitle("Create Play List");
 		 dialog.setHeaderText("Enter a Name:");
@@ -523,35 +501,73 @@ public class Functionality {
 		 if(result.isPresent()) { //this means, user has entered the name of the playlist
 			 fileChooser = new FileChooser();
 			 fileChooser.setTitle("select files");
-			// allFiles=  fileChooser.showOpenMultipleDialog(primaryStage);
+			 fileChooser.getExtensionFilters().addAll(
+					    new FileChooser.ExtensionFilter("all", "*.mp3","*.wav","*.aif","*.aiff")
+					);
 			 allFiles = fileChooser.showOpenMultipleDialog(primaryStage);
 			 
-			 for(File f : allFiles)
-				 listOfFiles.add(f.getAbsolutePath());
 			 
+			/* Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+			 alert.setTitle("Current project is modified");
+			 alert.setContentText("Save?");
+			 ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+			 ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+			 ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+			 alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
+			 Optional<ButtonType> result1 = alert.showAndWait();
+			 System.out.println("result1.get()"+ result1.get());
 			 
+		         if (result1.get() == okButton) {
+		        	 System.out.println("button ok");
+		        	 FileChooser fileChooser1 = new FileChooser();
+		        	  
+		              //Set extension filter
+		              FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("rit", "*.txt");
+		              fileChooser1.getExtensionFilters().add(extFilter);
+		              fileChooser1.setInitialFileName(result.get());
+		              //Show save file dialog
+		              File file = fileChooser1.showSaveDialog(primaryStage);
+		              
+		              if(file != null){
+		                 saveList(file.getPath());
+		              }
+		         } */
 			 
-			 if(listOfFiles != null) {
-				 ObservableList<String> names = FXCollections.observableArrayList();
-				//add playList name->
-				 ObservableList<String> temp  = FXCollections.observableArrayList(result.get());
-				 
-				 names.addAll(temp);
-				 
-				 for(String s : listOfFiles) {
-					 names.add(getName(s));
-				 }
-				 
-				 
-				 list.setItems(names);
-				 isPlayList = true;
+			 if(mediaPlayer != null) {
 				 stop();
-				 playPlayList();
-				 playListName=result.get();
-				 				 
+				 mediaPlayer.dispose();
 			 }
 			 
-			 saveList("C:\\Users\\Ritzy\\Desktop\\temp\\serialization.txt");
+			 if(allFiles != null) {
+				 for(File f : allFiles)
+					 listOfFiles.add(f.getAbsolutePath());
+				 
+				 
+				 
+				 if(listOfFiles != null) {
+					 ObservableList<String> names = FXCollections.observableArrayList();
+					//add playList name->
+					 ObservableList<String> temp  = FXCollections.observableArrayList(result.get());
+					 
+					 names.addAll(temp);
+					 
+					 for(String s : listOfFiles) {
+						 names.add(getName(s));
+					 }
+					 
+					 
+					 list.setItems(names);
+					 isPlayList = true;
+					 stop();
+					 playPlayList();
+					 playListName=result.get();
+					 				 
+				 }
+				 else {
+					 dialog = new TextInputDialog();
+				 }
+			 }
+			 
 		 }
 	 }
 	 
@@ -621,6 +637,7 @@ public class Functionality {
 			           playPause.setSelected(true);
 			           //use this to do whatever you want to. Open Link etc.
 			           playPlayList();
+			           
 			        }
 			    }
 
@@ -648,8 +665,98 @@ public class Functionality {
 		 }
 	 }
 	 
+	 /**
+		 * This function is used to save play list in the local machine.
+		 * @param path
+		 */
+		
+		public void saveList() {
+			if(list!=null) {
+				 FileChooser fileChooser = new FileChooser();
+			   	  
+		         //Set extension filter
+		         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("ritz", "*.ritz");
+		         fileChooser.getExtensionFilters().add(extFilter);
+		         fileChooser.setInitialFileName(playListName);
+		         //Show save file dialog
+		         File file = fileChooser.showSaveDialog(primaryStage);
+		         
+		         if(file != null){		    			 
+	    			 try {
+	    				  FileOutputStream fout=new FileOutputStream(file.getPath());  
+	    				  ObjectOutputStream out=new ObjectOutputStream(fout); 
+	    				  out.writeObject(listOfFiles);
+	    				  out.writeObject(playListName);
+	    				  out.flush();  
+	    				  System.out.println("success");  
+	    				  
+	    				  out.close();
+	    				  fout.close();
+	    				}
+	    				catch (IOException e) {  
+	    		            e.printStackTrace();  
+	    		        }
+		         }
+			}
+			
+			
+			 
+		 }
 	 
 	 
+	 /**
+		 * 
+		 * @param path
+		 */
+		
+		public void loadPlayList() {
+			 isPlayList = true;
+			 fileChooser = new FileChooser();
+			 fileChooser.setTitle("Open an existing play list");
+			 
+			 fileChooser.getExtensionFilters().addAll(
+					    new FileChooser.ExtensionFilter("ritz", "*.ritz")
+					);
+			 File file = fileChooser.showOpenDialog(primaryStage);
+			
+			try {
+				if(file.exists() && !file.isDirectory()) {
+					ObjectInputStream deserial=new ObjectInputStream(new FileInputStream(file));
+					try {
+						//list1 = (ListView<String>) deserial.readObject();
+						listOfFiles= (ArrayList<String>) deserial.readObject();
+						playListName=(String) deserial.readObject();
+						System.out.println(playListName);
+						
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}  
+					
+					if(listOfFiles != null && playListName != null) {
+						 ObservableList<String> names = FXCollections.observableArrayList();
+						//add playList name->
+						 ObservableList<String> temp1  = FXCollections.observableArrayList(playListName);
+						 
+						 names.addAll(temp1);
+						 
+						 for(String s : listOfFiles) {
+							 names.add(getName(s));
+						 }
+						 
+						 
+						 list.setItems(names);
+					}
+					deserial.close();
+					
+				}
+				
+			}
+			catch (IOException e) {  
+	            e.printStackTrace();  
+	        }
+			
+		}	 
 	 
 
 }

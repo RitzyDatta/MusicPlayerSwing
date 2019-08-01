@@ -1,3 +1,9 @@
+/**
+ * This class is used to extract metadata information of any type of audio file. Apache Tika library is used here.
+ * Apache Tika is a library that is used for document type detection and content extraction from various file formats.
+ *
+ */
+
 package com.music.application;
 
 import java.io.File;
@@ -35,6 +41,14 @@ public class TrackInformation {
 	public long frameCount;
 	public long qqwe;
 	
+	
+	/**
+	 *  While creation of the object, a path of the file need to be passed to the constructor for which we need to extract the metadata information.
+	 * @param filePath
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws TikaException
+	 */
 	public TrackInformation(String filePath) throws IOException, SAXException, TikaException {
 		  BodyContentHandler handler = new BodyContentHandler();  
 	      Metadata metadata = new Metadata();  
