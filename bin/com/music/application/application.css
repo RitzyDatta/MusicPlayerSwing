@@ -1,1 +1,45 @@
 /* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+
+   .stop{-fx-background-image: url('file:///C:/Users/Ritzy/Documents/GitHub/MusicPlayerUsingJavafx/resources/stop.png'); 
+   		-fx-background-repeat: no-repeat;
+   		-fx-background-position: center;
+   }   
+   
+   .play{-fx-background-image: url('file:///C:/Users/Ritzy/Documents/GitHub/MusicPlayerUsingJavafx/resources/play-button.png');
+   		-fx-background-repeat: no-repeat;
+   		-fx-background-position: center;
+   }
+   .play:selected {-fx-background-image: url('file:///C:/Users/Ritzy/Documents/GitHub/MusicPlayerUsingJavafx/resources/pause.png');
+			   	-fx-background-repeat: no-repeat;
+			   	-fx-background-position: center;
+   }
+   
+   .back{-fx-background-image: url('file:///C:/Users/Ritzy/Documents/GitHub/MusicPlayerUsingJavafx/resources/back.png');
+   		-fx-background-repeat: no-repeat;
+   		-fx-background-position: center;
+   }
+   
+   .mute{-fx-background-image: url('file:///C:/Users/Ritzy/Documents/GitHub/MusicPlayerUsingJavafx/resources/mute.png');
+   		-fx-background-repeat: no-repeat;
+   		-fx-background-position: center;
+   }
+   
+   .next{-fx-background-image: url('file:///C:/Users/Ritzy/Documents/GitHub/MusicPlayerUsingJavafx/resources/next.png');
+   		-fx-background-repeat: no-repeat;
+   		-fx-background-position: center;
+   }
+   
+   .replay{-fx-background-image: url('file:///C:/Users/Ritzy/Documents/GitHub/MusicPlayerUsingJavafx/resources/replay.png');
+   		-fx-background-repeat: no-repeat;
+   		-fx-background-position: center;
+   }
+   
+   .shuffle{-fx-background-image: url('file:///C:/Users/Ritzy/Documents/GitHub/MusicPlayerUsingJavafx/resources/shuffle.png');
+   		-fx-background-repeat: no-repeat;
+   		-fx-background-position: center;
+   }
+   
+   .speaker{-fx-background-image: url('file:///C:/Users/Ritzy/Documents/GitHub/MusicPlayerUsingJavafx/resources/speaker.png');
+   		-fx-background-repeat: no-repeat;
+   		-fx-background-position: center;
+   }

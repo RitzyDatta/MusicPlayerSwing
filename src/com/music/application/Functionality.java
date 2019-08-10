@@ -12,8 +12,10 @@ import java.awt.Container;
 import java.util.List;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -23,6 +25,9 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Random;
 
+import javax.swing.text.TabableView;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.tika.exception.TikaException;
 import org.xml.sax.SAXException;
 
@@ -35,23 +40,15 @@ import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.*;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -73,12 +70,15 @@ public class Functionality {
 	@FXML Label labelCurrentSong;
 	@FXML Slider timeslider,volumeBar;
 	@FXML ListView<String> list;
+	@FXML Label startdur;
+	@FXML Label enddur;
 	//@FXML ListView<String> playListName;
 	
 	MediaPlayer mediaPlayer;
 	FileChooser fileChooser;
 	File fileForSong;
 	TrackInformation info;
+	
 	Stage primaryStage;
 	Media media;
 	Double currentTime,totalTime,audioPosition,onclicked;
@@ -90,15 +90,21 @@ public class Functionality {
 	Boolean isPlayList;
 	Boolean isPaused;
 	String playListName;
+	ArrayList <String> libNames, libSongs;
+	DirectoryChooser dicPath;
+	
+	FileInputStream inputButton;
+	ImageView stopImage, playImage, nextImage, prevImage,shuffleImage,repeatImage,muteImage;
 	
 	
 	//Status status;
 	
 	/**
 	 * Here the constructor is used to initialize the variables.
+	 * @throws FileNotFoundException 
 	 */
 	
-	public Functionality() {
+	public Functionality() throws FileNotFoundException {
 		primaryStage = new Stage();
 		currentTime = null;
 		audioPosition= 0.0;
@@ -110,10 +116,12 @@ public class Functionality {
 		listOfFiles= new ArrayList<String>();
 		isPaused = false;
 		onclicked =0.0;
+		libNames = new ArrayList<String>();
+		libNames.add("Add");
+		libSongs = new ArrayList<String>();
 		
-		/*Timeline timeline = new Timeline(
-        	    new KeyFrame(Duration.seconds(0.8), e -> loadPlayList("C:\\Users\\Ritzy\\Desktop\\temp\\serialization.txt")));
-       timeline.play(); */
+	/*	playPause = new ToggleButton();
+		playPause.setGraphic(new ImageView(new Image("stop.png"))); */
 		
 		
 	}
@@ -124,6 +132,7 @@ public class Functionality {
 	
 	public void repeat() {
 		 if(repeat.isSelected()) {
+			 timeslider.setVisible(true);
 			 if(isPlayList) {
 				 index--;
 			 }
@@ -134,8 +143,9 @@ public class Functionality {
 			      timeline.play();
 			 }
 			 
+			 
 		 }
-			
+		
 			
 	 }
 	/**
@@ -165,7 +175,14 @@ public class Functionality {
 		if(playPause.isSelected()) {
 
 			Timeline timeline = new Timeline(
-	        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
+			new KeyFrame(Duration.seconds(0.8), e -> {
+				try {
+					play();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}));
 	        timeline.play();
 			
 		}
@@ -187,7 +204,8 @@ public class Functionality {
 			
 			if(status==Status.READY || status == Status.STOPPED) {
 				
-				playPause.setText("Pause");
+				//playPause.setText("Pause");
+				
 				playPause.setSelected(true);
 					
 			        //by setting this property to true, the audio will be played   
@@ -212,7 +230,7 @@ public class Functionality {
 			}
 			else if(status==Status.PAUSED) {
 				System.out.println("status paused called");
-				playPause.setText("Pause");
+			//	playPause.setText("Pause");
 				mediaPlayer.play();
 			}
 			else if( status == Status.UNKNOWN) {   // this is to show if the file status is unknown
@@ -233,7 +251,7 @@ public class Functionality {
 	public void pause() {
 		if(mediaPlayer != null) {
 			System.out.println("Pause function called");
-			playPause.setText("Play");
+	//		playPause.setText("Play");
 			mediaPlayer.pause();
 			isPaused = true;
 		}
@@ -267,7 +285,7 @@ public class Functionality {
 				        //System.out.println("filepath:  "+listOfFiles.get(index));
 				        //Instantiating MediaPlayer class   
 				        mediaPlayer = new MediaPlayer(media);
-						info= new TrackInformation(listOfFiles.get(tempIndex)); //NEED CORRECTION
+						info= new TrackInformation(listOfFiles.get(tempIndex),getName(temp)); //NEED CORRECTION
 					} catch (IOException | SAXException | TikaException e) {
 						
 						e.printStackTrace();
@@ -310,7 +328,7 @@ public class Functionality {
 			        //System.out.println("filepath:  "+listOfFiles.get(index));
 			        //Instantiating MediaPlayer class   
 			        mediaPlayer = new MediaPlayer(media);
-					info= new TrackInformation(listOfFiles.get(tempIndex)); //NEED CORRECTION
+					info= new TrackInformation(listOfFiles.get(tempIndex), getName(temp)); //NEED CORRECTION
 				} catch (IOException | SAXException | TikaException e) {
 					
 					e.printStackTrace();
@@ -359,7 +377,7 @@ public class Functionality {
 			        list.scrollTo(index);
 			        list.getSelectionModel().select(index+1); //select the song which is currently playing
 			        
-					info = new TrackInformation(listOfFiles.get(index)); //NEED CORRECTION
+					info = new TrackInformation(listOfFiles.get(index),temp); //NEED CORRECTION
 				} catch (IOException | SAXException | TikaException e) {
 					
 					e.printStackTrace();
@@ -376,7 +394,7 @@ public class Functionality {
 	}
 	
 	
-	 public void openFile() {
+	 public void openFile() throws IOException {
 		 
 		 fileChooser = new FileChooser();
 		 fileChooser.setTitle("Open File");
@@ -395,34 +413,22 @@ public class Functionality {
 			 
 			 labelCurrentSong.setText(getName(temp));
 			 
-			//store information of the selected file
+			stop();
+			media = new Media(fileForSong.toURI().toString());  
+			  
+			//Instantiating MediaPlayer class   
+			mediaPlayer = new MediaPlayer(media);
+			
+			//this is to delay the function
 			try {
-				stop();
-				media = new Media(fileForSong.toURI().toString());  
-		          
-		        //Instantiating MediaPlayer class   
-		        mediaPlayer = new MediaPlayer(media);
-		        
-		        //this is to delay the function
-		        
-		        Timeline timeline = new Timeline(
-		        	    new KeyFrame(Duration.seconds(0.8), e -> play()));
-		        timeline.play();
-		       
-		     /*  Thread t1 = new Thread(new Runnable() {
-		    	    @Override
-		    	    public void run() {
-		    	        play();
-		    	    }
-		    	});
-		    	t1.start(); */
-		       
-		       
-				info= new TrackInformation(fileForSong.getPath());
-			} catch (IOException | SAXException | TikaException e) {
-				
-				e.printStackTrace();
+				info= new TrackInformation(fileForSong.getPath(),getName(temp));
+			} catch (SAXException | TikaException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
+			Timeline timeline = new Timeline(
+				    new KeyFrame(Duration.seconds(0.8), e -> play()));
+			timeline.play();
 			
 			
 		 }
@@ -445,13 +451,20 @@ public class Functionality {
 		 currentTime = mediaPlayer.getCurrentTime().toSeconds();
 		 totalTime = mediaPlayer.getTotalDuration().toSeconds();
 		 
+		 Double tempTotal= mediaPlayer.getTotalDuration().toMinutes();
+		 Double tempCur = mediaPlayer.getCurrentTime().toMinutes();
+		 enddur.setText(tempTotal.toString());
+		 
 	//	 System.out.println("currentTime" + currentTime);
 	//	 System.out.println("totalTime" + totalTime
 		 audioPosition= (currentTime/(totalTime))*100; //as slide bar min length is 0 and max length is 100
 		 
 	//	 System.out.println("audioPosition" + audioPosition);
-		 if(onclicked ==0.0)
+		 if(onclicked ==0.0) {
 			 timeslider.setValue(audioPosition);
+			 startdur.setText(tempCur.toString());
+		 }
+			
 		 else {
 			 timeslider.setValue(onclicked);
 			 onclicked=0.0;
@@ -505,33 +518,6 @@ public class Functionality {
 					    new FileChooser.ExtensionFilter("all", "*.mp3","*.wav","*.aif","*.aiff")
 					);
 			 allFiles = fileChooser.showOpenMultipleDialog(primaryStage);
-			 
-			 
-			/* Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-			 alert.setTitle("Current project is modified");
-			 alert.setContentText("Save?");
-			 ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-			 ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
-			 ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-			 alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
-			 Optional<ButtonType> result1 = alert.showAndWait();
-			 System.out.println("result1.get()"+ result1.get());
-			 
-		         if (result1.get() == okButton) {
-		        	 System.out.println("button ok");
-		        	 FileChooser fileChooser1 = new FileChooser();
-		        	  
-		              //Set extension filter
-		              FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("rit", "*.txt");
-		              fileChooser1.getExtensionFilters().add(extFilter);
-		              fileChooser1.setInitialFileName(result.get());
-		              //Show save file dialog
-		              File file = fileChooser1.showSaveDialog(primaryStage);
-		              
-		              if(file != null){
-		                 saveList(file.getPath());
-		              }
-		         } */
 			 
 			 if(mediaPlayer != null) {
 				 stop();
@@ -756,7 +742,8 @@ public class Functionality {
 	            e.printStackTrace();  
 	        }
 			
-		}	 
+		}
+		
 	 
 
 }

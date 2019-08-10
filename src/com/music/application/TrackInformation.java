@@ -36,12 +36,7 @@ public class TrackInformation {
 	long audioFileLength;
 	int frameSize;
 	AudioFormat format;
-	public float durationInSeconds;
-	float frameRate;
-	public long frameCount;
-	public long qqwe;
-	
-	
+	public String title;
 	/**
 	 *  While creation of the object, a path of the file need to be passed to the constructor for which we need to extract the metadata information.
 	 * @param filePath
@@ -49,7 +44,8 @@ public class TrackInformation {
 	 * @throws SAXException
 	 * @throws TikaException
 	 */
-	public TrackInformation(String filePath) throws IOException, SAXException, TikaException {
+	public TrackInformation(String filePath, String title) throws IOException, SAXException, TikaException {
+		  this.title=title;
 		  BodyContentHandler handler = new BodyContentHandler();  
 	      Metadata metadata = new Metadata();  
 	      FileInputStream inputstream = new FileInputStream(new File(filePath));  
